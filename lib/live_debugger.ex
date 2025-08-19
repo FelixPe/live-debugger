@@ -10,6 +10,7 @@ defmodule LiveDebugger do
 
   @default_ip {127, 0, 0, 1}
   @default_port 4007
+  @default_enable_https false
   @default_secret_key_base "DEFAULT_SECRET_KEY_BASE_1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcd"
   @default_signing_salt "live_debugger_signing_salt"
 
@@ -55,13 +56,30 @@ defmodule LiveDebugger do
     end
   end
 
+  defp get_http_config(config) do
+    http_config =
+      [
+        ip: Keyword.get(config, :ip, @default_ip),
+        port: Keyword.get(config, :port, @default_port)
+      ]
+
+    if Keyword.get(config, :enable_https, @default_enable_https) do
+      {:https,
+        [
+          cipher_suite: :strong,
+          certfile: Keyword.fetch!(config, :certfile),
+          keyfile: Keyword.fetch!(config, :keyfile)
+        ] ++ http_config
+      }
+    else
+      {:http, http_config}
+    end
+  end
+
   defp put_endpoint_config(config) do
     endpoint_config =
       [
-        http: [
-          ip: Keyword.get(config, :ip, @default_ip),
-          port: Keyword.get(config, :port, @default_port)
-        ],
+        get_http_config(config),
         secret_key_base: Keyword.get(config, :secret_key_base, @default_secret_key_base),
         live_view: [signing_salt: Keyword.get(config, :signing_salt, @default_signing_salt)],
         adapter: Keyword.get(config, :adapter, default_adapter()),
