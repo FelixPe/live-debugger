@@ -24,6 +24,19 @@ In `router.ex` of your Phoenix app, make sure your locally running Phoenix app c
     plug :put_secure_browser_headers, %{"content-security-policy" => @csp}
 ```
 
+## Enableing HTTPS
+
+To enable HTTPS for the live debugger, it is required to change the external URL and define the certificate and key file in the config.
+
+```elixir
+config :live_debugger,
+  port: 4007,
+  external_url: "https://my.local.test.com:4007",
+  enable_https: true,
+  certfile: "../../../../priv/cert/selfsigned.pem",
+  keyfile: "../../../../priv/cert/selfsigned_key.pem",
+```
+
 ## Disabling LiveDebugger
 
 In case you need LiveDebugger to not run at the start of your application but want to keep the dependency, you can disable it manually in your config:
